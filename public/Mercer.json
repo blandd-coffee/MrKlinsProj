@@ -1,0 +1,191 @@
+[
+  {
+    "step": 1,
+    "bachelors": 56750,
+    "masters": 58739,
+    "m_plus_15": null,
+    "m_plus_30": 63048,
+    "voc_i": null,
+    "voc_ii": null
+  },
+  {
+    "step": 2,
+    "bachelors": 57057,
+    "masters": 59046,
+    "m_plus_15": 47749,
+    "m_plus_30": 63355,
+    "voc_i": 45208,
+    "voc_ii": 45731
+  },
+  {
+    "step": 3,
+    "bachelors": 57364,
+    "masters": 59353,
+    "m_plus_15": 48349,
+    "m_plus_30": 63662,
+    "voc_i": 45808,
+    "voc_ii": 46331
+  },
+  {
+    "step": 4,
+    "bachelors": 57671,
+    "masters": 59660,
+    "m_plus_15": 48949,
+    "m_plus_30": 63969,
+    "voc_i": 46408,
+    "voc_ii": 46931
+  },
+  {
+    "step": 5,
+    "bachelors": 59123,
+    "masters": 61112,
+    "m_plus_15": 49949,
+    "m_plus_30": 65421,
+    "voc_i": 47408,
+    "voc_ii": 47931
+  },
+  {
+    "step": 6,
+    "bachelors": 60575,
+    "masters": 62564,
+    "m_plus_15": 50949,
+    "m_plus_30": 66873,
+    "voc_i": 48408,
+    "voc_ii": 48931
+  },
+  {
+    "step": 7,
+    "bachelors": 62027,
+    "masters": 64015,
+    "m_plus_15": 51999,
+    "m_plus_30": 68324,
+    "voc_i": 49458,
+    "voc_ii": 49981
+  },
+  {
+    "step": 8,
+    "bachelors": 63479,
+    "masters": 65467,
+    "m_plus_15": 52899,
+    "m_plus_30": 69776,
+    "voc_i": 50358,
+    "voc_ii": 50881
+  },
+  {
+    "step": 9,
+    "bachelors": 64930,
+    "masters": 66919,
+    "m_plus_15": 53699,
+    "m_plus_30": 71228,
+    "voc_i": 51158,
+    "voc_ii": 51681
+  },
+  {
+    "step": 10,
+    "bachelors": 66382,
+    "masters": 68371,
+    "m_plus_15": 54549,
+    "m_plus_30": 72680,
+    "voc_i": 52008,
+    "voc_ii": 52531
+  },
+  {
+    "step": 11,
+    "bachelors": 67834,
+    "masters": 69823,
+    "m_plus_15": 55299,
+    "m_plus_30": 74132,
+    "voc_i": 52758,
+    "voc_ii": 53281
+  },
+  {
+    "step": 12,
+    "bachelors": 69286,
+    "masters": 71274,
+    "m_plus_15": 55949,
+    "m_plus_30": 75583,
+    "voc_i": 53408,
+    "voc_ii": 53931
+  },
+  {
+    "step": 13,
+    "bachelors": 70737,
+    "masters": 72726,
+    "m_plus_15": 56699,
+    "m_plus_30": 77035,
+    "voc_i": 54158,
+    "voc_ii": 54681
+  },
+  {
+    "step": 14,
+    "bachelors": 72189,
+    "masters": 74178,
+    "m_plus_15": 57699,
+    "m_plus_30": 78487,
+    "voc_i": 55158,
+    "voc_ii": 55681
+  },
+  {
+    "step": 15,
+    "bachelors": 73641,
+    "masters": 75630,
+    "m_plus_15": 58999,
+    "m_plus_30": 79939,
+    "voc_i": 56458,
+    "voc_ii": 56981
+  },
+  {
+    "step": 16,
+    "bachelors": 75093,
+    "masters": 77081,
+    "m_plus_15": 60299,
+    "m_plus_30": 81390,
+    "voc_i": 57758,
+    "voc_ii": 58281
+  },
+  {
+    "step": 17,
+    "bachelors": 76544,
+    "masters": 78533,
+    "m_plus_15": 61849,
+    "m_plus_30": 82842,
+    "voc_i": 59308,
+    "voc_ii": 59831
+  },
+  {
+    "step": 18,
+    "bachelors": 77996,
+    "masters": 79985,
+    "m_plus_15": 64449,
+    "m_plus_30": 84294,
+    "voc_i": 61908,
+    "voc_ii": 62431
+  },
+  {
+    "step": 19,
+    "bachelors": 77996,
+    "masters": 79985,
+    "m_plus_15": 68499,
+    "m_plus_30": 84294,
+    "voc_i": 65958,
+    "voc_ii": 66481
+  },
+  {
+    "step": 20,
+    "bachelors": 77996,
+    "masters": 79985,
+    "m_plus_15": 72074,
+    "m_plus_30": 84294,
+    "voc_i": 69533,
+    "voc_ii": 70056
+  },
+  {
+    "step": 21,
+    "bachelors": 77996,
+    "masters": 79985,
+    "m_plus_15": 75715,
+    "m_plus_30": 84294,
+    "voc_i": 73574,
+    "voc_ii": 74846
+  }
+]

@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Comparison Tool</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        padding: 20px;
+        background-color: #f8f9fa;
+      }
+      .container-main {
+        max-width: 1400px;
+      }
+      .table-container {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e9ecef;
+      }
+      table tbody tr {
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+      table tbody tr:hover {
+        background-color: #f8f9fa;
+      }
+      table tbody tr.selected {
+        background-color: #d3e5f7;
+        font-weight: 500;
+      }
+      .comparison-section {
+        margin-top: 30px;
+      }
+      .loading {
+        display: none;
+        text-align: center;
+        padding: 20px;
+      }
+      .loading.active {
+        display: block;
+      }
+      .error-message {
+        display: none;
+      }
+      .error-message.active {
+        display: block;
+      }
+      th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+      }
+      td {
+        vertical-align: middle;
+      }
+      .diff-positive {
+        background-color: #d4edda;
+        color: #155724;
+        font-weight: 600;
+      }
+      .diff-negative {
+        background-color: #f8d7da;
+        color: #721c24;
+        font-weight: 600;
+      }
+      .diff-neutral {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+      .diff-zero {
+        background-color: #e2e3e5;
+        color: #383d41;
+      }
+      .selection-info {
+        background-color: #e7f3ff;
+        border-left: 4px solid #2196f3;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+      }
+      .side-by-side {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+      @media (max-width: 768px) {
+        .side-by-side {
+          grid-template-columns: 1fr;
+        }
+      }
+      .column-selector {
+        margin-bottom: 15px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container container-main">
+      <h1 class="mb-4">Data Comparison Tool</h1>
+
+      <div class="side-by-side">
+        <!-- Left Side Selection -->
+        <div>
+          <div class="table-container">
+            <div class="table-header">
+              <h3>Select First Item</h3>
+            </div>
+            <div class="column-selector">
+              <label for="type1" class="form-label mb-0">Dataset:</label>
+              <select id="type1" class="form-select">
+                <option value="ECTS">ECTS</option>
+              </select>
+            </div>
+
+            <div class="loading active" id="loading1">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2">Loading data...</p>
+            </div>
+
+            <div
+              class="error-message alert alert-danger"
+              id="errorMessage1"
+              role="alert"
+            ></div>
+
+            <table
+              class="table table-hover table-striped"
+              id="table1"
+              style="display: none"
+            >
+              <thead>
+                <tr id="headerRow1"></tr>
+              </thead>
+              <tbody id="bodyRow1"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Right Side Selection -->
+        <div>
+          <div class="table-container">
+            <div class="table-header">
+              <h3>Select Second Item</h3>
+            </div>
+            <div class="column-selector">
+              <label for="type2" class="form-label mb-0">Dataset:</label>
+              <select id="type2" class="form-select">
+                <option value="Mercer">Mercer</option>
+              </select>
+            </div>
+
+            <div class="loading active" id="loading2">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2">Loading data...</p>
+            </div>
+
+            <div
+              class="error-message alert alert-danger"
+              id="errorMessage2"
+              role="alert"
+            ></div>
+
+            <table
+              class="table table-hover table-striped"
+              id="table2"
+              style="display: none"
+            >
+              <thead>
+                <tr id="headerRow2"></tr>
+              </thead>
+              <tbody id="bodyRow2"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison Results -->
+      <div
+        class="comparison-section"
+        id="comparisonSection"
+        style="display: none"
+      >
+        <div class="table-container">
+          <h2 class="mb-4">
+            Salary Comparison - Step <span id="comparisonStep"></span>
+          </h2>
+          <div class="selection-info" id="selectionInfo"></div>
+          <table class="table table-striped" id="differenceTable">
+            <thead>
+              <tr>
+                <th>Position Type</th>
+                <th id="diffHeader1">ECTS</th>
+                <th id="diffHeader2">Comparison</th>
+                <th>Difference</th>
+                <th>% Difference</th>
+              </tr>
+            </thead>
+            <tbody id="differenceBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let ectsData = [];
+      let comparisonData = [];
+      let selectedEctsStep = null;
+      let selectedComparisonStep = null;
+      let currentComparisonType = "Mercer";
+
+      async function GET(URL) {
+        const data = await fetch(URL);
+        if (!data.ok) {
+          throw new Error(`HTTP error! status: ${data.status}`);
+        }
+        return data.json();
+      }
+
+      function showLoading(id, show = true) {
+        document.getElementById(id).classList.toggle("active", show);
+      }
+
+      function showError(id, message) {
+        const errorEl = document.getElementById(id);
+        if (message) {
+          errorEl.textContent = message;
+          errorEl.classList.add("active");
+        } else {
+          errorEl.classList.remove("active");
+        }
+      }
+
+      function getNumericFields(row) {
+        // Get all numeric fields from a row (excluding 'step')
+        return Object.keys(row).filter(
+          (key) =>
+            key !== "step" &&
+            !isNaN(parseFloat(row[key])) &&
+            row[key] !== null &&
+            row[key] !== 0
+        );
+      }
+
+      function populateTable(data, headerId, bodyId, side) {
+        const headerRow = document.getElementById(headerId);
+        headerRow.innerHTML = "";
+        if (Array.isArray(data) && data.length > 0) {
+          Object.keys(data[0]).forEach((key) => {
+            const th = document.createElement("th");
+            th.textContent = key;
+            headerRow.appendChild(th);
+          });
+        }
+
+        const dataBody = document.getElementById(bodyId);
+        dataBody.innerHTML = "";
+
+        if (Array.isArray(data)) {
+          data.forEach((row, index) => {
+            const tr = document.createElement("tr");
+            tr.style.cursor = "pointer";
+            tr.dataset.rowIndex = index;
+            Object.values(row).forEach((value) => {
+              const td = document.createElement("td");
+              td.textContent = value;
+              tr.appendChild(td);
+            });
+
+            tr.addEventListener("click", () => {
+              document
+                .querySelectorAll(`#${bodyId} tr`)
+                .forEach((r) => r.classList.remove("selected"));
+              tr.classList.add("selected");
+
+              if (side === 1) {
+                selectedEctsStep = row.step;
+              } else {
+                selectedComparisonStep = row.step;
+              }
+              updateComparison();
+            });
+
+            dataBody.appendChild(tr);
+          });
+        }
+      }
+
+      function calculateSalaryDifference(ectsValue, comparisonValue) {
+        const ects = parseFloat(ectsValue);
+        const comp = parseFloat(comparisonValue);
+
+        if (isNaN(ects) || isNaN(comp)) {
+          return { diff: "N/A", percent: "N/A", raw: 0 };
+        }
+
+        const diff = ects - comp;
+        const percent =
+          comp !== 0 ? ((diff / comp) * 100).toFixed(2) : diff === 0 ? 0 : "∞";
+        return {
+          diff: diff,
+          percent: percent,
+          display: `$${diff.toLocaleString()}`,
+        };
+      }
+
+      function updateComparison() {
+        if (selectedEctsStep === null || selectedComparisonStep === null) {
+          document.getElementById("comparisonSection").style.display = "none";
+          return;
+        }
+
+        // Find matching rows
+        const ectsRow = ectsData.find((r) => r.step === selectedEctsStep);
+        const compRow = comparisonData.find(
+          (r) => r.step === selectedComparisonStep
+        );
+
+        if (!ectsRow || !compRow) {
+          document.getElementById("comparisonSection").style.display = "none";
+          return;
+        }
+
+        document.getElementById("comparisonSection").style.display = "block";
+        document.getElementById("comparisonStep").textContent =
+          selectedEctsStep;
+        document.getElementById("diffHeader2").textContent =
+          currentComparisonType;
+        document.getElementById("selectionInfo").innerHTML = `
+          <strong>Comparing Step ${selectedEctsStep}:</strong> ECTS vs ${currentComparisonType}
+        `;
+
+        const differenceBody = document.getElementById("differenceBody");
+        differenceBody.innerHTML = "";
+
+        // Get all numeric fields from ECTS row
+        const fields = getNumericFields(ectsRow);
+
+        fields.forEach((field) => {
+          const tr = document.createElement("tr");
+
+          const fieldCell = document.createElement("td");
+          fieldCell.textContent = field;
+          fieldCell.style.fontWeight = "600";
+          tr.appendChild(fieldCell);
+
+          const ectsCell = document.createElement("td");
+          const ectsVal = ectsRow[field];
+          ectsCell.textContent = `$${parseFloat(ectsVal).toLocaleString()}`;
+          tr.appendChild(ectsCell);
+
+          const compCell = document.createElement("td");
+          const compVal = compRow[field];
+          if (compVal === null || compVal === undefined || compVal === 0) {
+            compCell.textContent = "N/A";
+            compCell.style.color = "#999";
+          } else {
+            compCell.textContent = `$${parseFloat(compVal).toLocaleString()}`;
+          }
+          tr.appendChild(compCell);
+
+          const diffData = calculateSalaryDifference(ectsVal, compVal);
+
+          const diffCell = document.createElement("td");
+          if (diffData.diff === "N/A") {
+            diffCell.textContent = "N/A";
+            diffCell.classList.add("diff-neutral");
+          } else {
+            diffCell.textContent = diffData.display;
+            if (diffData.raw > 0) {
+              diffCell.classList.add("diff-positive"); // ECTS pays more
+            } else if (diffData.raw < 0) {
+              diffCell.classList.add("diff-negative"); // ECTS pays less
+            } else {
+              diffCell.classList.add("diff-zero");
+            }
+          }
+          tr.appendChild(diffCell);
+
+          const percentCell = document.createElement("td");
+          if (diffData.percent === "N/A") {
+            percentCell.textContent = "N/A";
+          } else {
+            percentCell.textContent = `${diffData.raw > 0 ? "+" : ""}${
+              diffData.percent
+            }%`;
+            if (diffData.raw > 0) {
+              percentCell.classList.add("diff-positive");
+            } else if (diffData.raw < 0) {
+              percentCell.classList.add("diff-negative");
+            } else {
+              percentCell.classList.add("diff-zero");
+            }
+          }
+          tr.appendChild(percentCell);
+
+          differenceBody.appendChild(tr);
+        });
+      }
+
+      async function loadData(type, side) {
+        try {
+          showLoading(`loading${side}`, true);
+          showError(`errorMessage${side}`, "");
+          const data = await GET(`/data?type=${type}`);
+
+          if (side === 1) {
+            ectsData = data;
+          } else {
+            comparisonData = data;
+            currentComparisonType = type;
+          }
+
+          populateTable(data, `headerRow${side}`, `bodyRow${side}`, side);
+          document.getElementById(`table${side}`).style.display = "table";
+          showLoading(`loading${side}`, false);
+        } catch (error) {
+          console.error(`Error loading data for side ${side}:`, error);
+          showError(
+            `errorMessage${side}`,
+            `Failed to load data: ${error.message}`
+          );
+          showLoading(`loading${side}`, false);
+        }
+      }
+
+      async function initializeSelectOptions() {
+        try {
+          const response = await GET("/data");
+          const availableTypes = response.available || [];
+
+          if (!availableTypes.length) {
+            console.warn("No available data types returned from server");
+            return;
+          }
+
+          const select = document.getElementById("type2");
+          select.innerHTML = "";
+
+          availableTypes.forEach((type) => {
+            if (type !== "ECTS") {
+              const option = document.createElement("option");
+              option.value = type;
+              option.textContent = type;
+              select.appendChild(option);
+            }
+          });
+
+          if (select.options.length > 0) {
+            select.value = select.options[0].value;
+          }
+        } catch (error) {
+          console.error("Error initializing select options:", error);
+        }
+      }
+
+      async function init() {
+        await initializeSelectOptions();
+        await loadData("ECTS", 1);
+        await loadData("Mercer", 2);
+      }
+
+      init();
+
+      document.getElementById("type2").addEventListener("change", (e) => {
+        loadData(e.target.value, 2);
+        selectedComparisonStep = null;
+        document.getElementById("comparisonSection").style.display = "none";
+      });
+    </script>
+  </body>
+</html>

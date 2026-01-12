@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Salary Comparison Tool</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+    />
+    <style>
+      :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #34495e;
+        --accent-color: #3498db;
+        --accent-light: #5dade2;
+        --success-color: #27ae60;
+        --danger-color: #e74c3c;
+        --neutral-color: #95a5a6;
+        --bg-color: #ecf0f1;
+        --card-bg: #ffffff;
+      }
+
+      * {
+        transition: all 0.15s ease;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        padding: 20px;
+        background: linear-gradient(135deg, #ecf0f1 0%, #d5dbdb 100%);
+        color: var(--primary-color);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        min-height: 100vh;
+      }
+
+      .container-main {
+        max-width: 1400px;
+      }
+
+      .page-header {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color) 0%,
+          var(--secondary-color) 100%
+        );
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-bottom: 40px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      }
+
+      .page-header h1 {
+        font-weight: 700;
+        margin-bottom: 5px;
+        font-size: 2.5rem;
+      }
+
+      .page-header p {
+        opacity: 0.9;
+        margin-bottom: 0;
+        font-size: 1.1rem;
+      }
+
+      .table-container {
+        background: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        padding: 25px;
+        margin-bottom: 20px;
+        border-top: 4px solid var(--accent-color);
+        transition: box-shadow 0.3s ease;
+      }
+
+      .table-container:hover {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+      }
+
+      .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid var(--bg-color);
+      }
+
+      .table-header h3 {
+        color: var(--primary-color);
+        font-weight: 700;
+        margin-bottom: 0;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .table-header h3 i {
+        color: var(--accent-color);
+      }
+
+      table {
+        margin-bottom: 0;
+      }
+
+      table thead tr {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ecf0f1 100%);
+        border-bottom: 2px solid var(--accent-color);
+      }
+
+      table thead th {
+        background: none;
+        color: var(--primary-color);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        padding: 15px;
+        border: none;
+      }
+
+      table tbody tr {
+        cursor: pointer;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      table tbody td {
+        padding: 15px;
+        vertical-align: middle;
+        color: var(--primary-color);
+      }
+
+      table tbody tr:hover {
+        background-color: #f0f7ff;
+        transform: translateY(-1px);
+      }
+
+      table tbody tr.selected {
+        background: linear-gradient(90deg, #d6eaf8 0%, #eaf2f8 100%);
+        font-weight: 600;
+        box-shadow: inset 4px 0 0 var(--accent-color);
+      }
+
+      .form-select,
+      .form-label {
+        color: var(--primary-color);
+      }
+
+      .form-select {
+        border: 2px solid var(--bg-color);
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-weight: 500;
+      }
+
+      .form-select:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.15);
+      }
+
+      .form-label {
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+      }
+
+      .comparison-section {
+        margin-top: 40px;
+        animation: slideInUp 0.4s ease;
+      }
+
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        padding: 40px 20px;
+      }
+
+      .loading.active {
+        display: block;
+      }
+
+      .spinner-border {
+        color: var(--accent-color);
+        width: 3rem;
+        height: 3rem;
+      }
+
+      .error-message {
+        display: none;
+        border-left: 4px solid var(--danger-color);
+        background-color: #fadbd8;
+        color: #922b21;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        font-weight: 500;
+      }
+
+      .error-message.active {
+        display: block;
+        animation: shake 0.5s ease;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-5px);
+        }
+        75% {
+          transform: translateX(5px);
+        }
+      }
+
+      .diff-positive {
+        background-color: #d5f4e6;
+        color: #186a3b;
+        font-weight: 700;
+      }
+
+      .diff-negative {
+        background-color: #fadbd8;
+        color: #922b21;
+        font-weight: 700;
+      }
+
+      .diff-neutral {
+        background-color: #fef5e7;
+        color: #7d6608;
+        font-weight: 500;
+      }
+
+      .diff-zero {
+        background-color: #d5d8dc;
+        color: #212f3c;
+        font-weight: 500;
+      }
+
+      .selection-info {
+        background: linear-gradient(135deg, #d6eaf8 0%, #eaf2f8 100%);
+        border-left: 4px solid var(--accent-color);
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        color: #1f618d;
+      }
+
+      .selection-info strong {
+        color: var(--primary-color);
+      }
+
+      .side-by-side {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      @media (max-width: 768px) {
+        .side-by-side {
+          grid-template-columns: 1fr;
+        }
+        .page-header h1 {
+          font-size: 1.8rem;
+        }
+      }
+
+      .column-selector {
+        margin-bottom: 15px;
+        display: flex;
+        gap: 15px;
+        align-items: flex-end;
+      }
+
+      .column-selector > div {
+        flex: 1;
+      }
+
+      .step-selector-group {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+      }
+
+      .step-selector-group h5 {
+        color: var(--primary-color);
+        font-weight: 700;
+        margin-bottom: 15px;
+        font-size: 1rem;
+      }
+
+      table tbody tr.no-data {
+        text-align: center;
+        color: var(--neutral-color);
+        font-style: italic;
+      }
+
+      .data-status {
+        font-size: 0.9rem;
+        color: var(--neutral-color);
+        margin-top: 10px;
+      }
+
+      .badge-info {
+        background-color: var(--accent-color);
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container container-main">
+      <div class="page-header">
+        <h1><i class="bi bi-graph-up"></i> Salary Comparison Tool</h1>
+        <p>
+          Compare school salary structures across different districts and
+          education levels
+        </p>
+      </div>
+
+      <div class="side-by-side">
+        <!-- ECTS Data -->
+        <div>
+          <div class="table-container">
+            <div class="table-header">
+              <h3><i class="bi bi-building"></i> ECTS (Base)</h3>
+            </div>
+            <div class="column-selector">
+              <div>
+                <label for="type1" class="form-label">District:</label>
+                <select id="type1" class="form-select" disabled>
+                  <option value="ECTS">ECTS</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="loading active" id="loading1">
+              <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-3 mb-0">Loading salary data...</p>
+            </div>
+
+            <div class="error-message" id="errorMessage1" role="alert"></div>
+
+            <table class="table table-hover" id="table1" style="display: none">
+              <thead>
+                <tr id="headerRow1"></tr>
+              </thead>
+              <tbody id="bodyRow1"></tbody>
+            </table>
+            <div class="data-status" id="status1"></div>
+          </div>
+        </div>
+
+        <!-- Comparison Data -->
+        <div>
+          <div class="table-container">
+            <div class="table-header">
+              <h3><i class="bi bi-diagram-3"></i> Compare With</h3>
+            </div>
+            <div class="column-selector">
+              <div>
+                <label for="type2" class="form-label">District:</label>
+                <select id="type2" class="form-select">
+                  <option value="Mercer">Mercer</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="loading active" id="loading2">
+              <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-3 mb-0">Loading salary data...</p>
+            </div>
+
+            <div class="error-message" id="errorMessage2" role="alert"></div>
+
+            <table class="table table-hover" id="table2" style="display: none">
+              <thead>
+                <tr id="headerRow2"></tr>
+              </thead>
+              <tbody id="bodyRow2"></tbody>
+            </table>
+            <div class="data-status" id="status2"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison Results -->
+      <div
+        class="comparison-section"
+        id="comparisonSection"
+        style="display: none"
+      >
+        <div class="table-container">
+          <div class="table-header">
+            <h3>
+              <i class="bi bi-bar-chart-line"></i> Detailed Salary Analysis
+            </h3>
+          </div>
+
+          <div class="step-selector-group">
+            <h5>Select Steps to Compare</h5>
+            <div class="side-by-side" style="margin-bottom: 0">
+              <div>
+                <label for="ectsStepSelect" class="form-label"
+                  >ECTS Step:</label
+                >
+                <select id="ectsStepSelect" class="form-select"></select>
+              </div>
+              <div>
+                <label for="comparisonStepSelect" class="form-label">
+                  <span id="comparisonTypeLabel">Comparison</span> Step:
+                </label>
+                <select id="comparisonStepSelect" class="form-select"></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="selection-info" id="selectionInfo"></div>
+
+          <div style="overflow-x: auto">
+            <table class="table table-hover" id="differenceTable">
+              <thead>
+                <tr>
+                  <th>Position Type</th>
+                  <th id="diffHeader1">ECTS Salary</th>
+                  <th id="diffHeader2">Comparison Salary</th>
+                  <th>Salary Difference</th>
+                  <th>% Change</th>
+                </tr>
+              </thead>
+              <tbody id="differenceBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let ectsData = [];
+      let comparisonData = [];
+      let selectedEctsStep = null;
+      let selectedComparisonStep = null;
+      let currentComparisonType = "Mercer";
+      let eventListenersAdded = false;
+
+      async function GET(URL) {
+        const data = await fetch(URL);
+        if (!data.ok) {
+          throw new Error(`HTTP error! status: ${data.status}`);
+        }
+        return data.json();
+      }
+
+      function showLoading(id, show = true) {
+        document.getElementById(id).classList.toggle("active", show);
+      }
+
+      function showError(id, message) {
+        const errorEl = document.getElementById(id);
+        if (message) {
+          errorEl.textContent = `⚠️ ${message}`;
+          errorEl.classList.add("active");
+        } else {
+          errorEl.classList.remove("active");
+        }
+      }
+
+      function updateStatus(id, count) {
+        const statusEl = document.getElementById(`status${id}`);
+        if (statusEl) {
+          statusEl.textContent = `${count} salary steps available`;
+        }
+      }
+
+      function getNumericFields(row) {
+        return Object.keys(row).filter(
+          (key) =>
+            key !== "step" && !isNaN(parseFloat(row[key])) && row[key] !== null
+        );
+      }
+
+      function populateTable(data, headerId, bodyId, side) {
+        const headerRow = document.getElementById(headerId);
+        headerRow.innerHTML = "";
+        if (Array.isArray(data) && data.length > 0) {
+          Object.keys(data[0]).forEach((key) => {
+            const th = document.createElement("th");
+            th.textContent = key;
+            headerRow.appendChild(th);
+          });
+        }
+
+        const dataBody = document.getElementById(bodyId);
+        dataBody.innerHTML = "";
+
+        if (Array.isArray(data)) {
+          data.forEach((row) => {
+            const tr = document.createElement("tr");
+            tr.style.cursor = "pointer";
+            Object.values(row).forEach((value) => {
+              const td = document.createElement("td");
+              td.textContent = value;
+              tr.appendChild(td);
+            });
+
+            tr.addEventListener("click", () => {
+              document
+                .querySelectorAll(`#${bodyId} tr`)
+                .forEach((r) => r.classList.remove("selected"));
+              tr.classList.add("selected");
+
+              if (side === 1) {
+                selectedEctsStep = row.step;
+              } else {
+                selectedComparisonStep = row.step;
+              }
+              updateComparison();
+            });
+
+            dataBody.appendChild(tr);
+          });
+        }
+
+        updateStatus(side, data.length);
+      }
+
+      function calculateSalaryDifference(ectsValue, comparisonValue) {
+        const ects = parseFloat(ectsValue);
+        const comp = parseFloat(comparisonValue);
+
+        if (isNaN(ects) || isNaN(comp)) {
+          return { diff: "N/A", percent: "N/A", raw: 0 };
+        }
+
+        const diff = ects - comp;
+        const percent =
+          comp !== 0 ? ((diff / comp) * 100).toFixed(2) : diff === 0 ? 0 : "∞";
+        return {
+          diff: diff,
+          percent: percent,
+          display: `$${diff.toLocaleString()}`,
+        };
+      }
+
+      function updateComparison() {
+        if (selectedEctsStep === null || selectedComparisonStep === null) {
+          document.getElementById("comparisonSection").style.display = "none";
+          return;
+        }
+
+        const ectsRow = ectsData.find((r) => r.step === selectedEctsStep);
+        const compRow = comparisonData.find(
+          (r) => r.step === selectedComparisonStep
+        );
+
+        if (!ectsRow || !compRow) {
+          document.getElementById("comparisonSection").style.display = "none";
+          return;
+        }
+
+        document.getElementById("comparisonSection").style.display = "block";
+        document.getElementById("comparisonTypeLabel").textContent =
+          currentComparisonType;
+        document.getElementById(
+          "diffHeader2"
+        ).textContent = `${currentComparisonType} Salary`;
+        document.getElementById("selectionInfo").innerHTML = `
+          <strong>📊 Comparing:</strong> ECTS Step ${selectedEctsStep} vs ${currentComparisonType} Step ${selectedComparisonStep}
+        `;
+
+        const differenceBody = document.getElementById("differenceBody");
+        differenceBody.innerHTML = "";
+
+        const fields = getNumericFields(ectsRow);
+
+        fields.forEach((field) => {
+          const ectsVal = ectsRow[field];
+          const compVal = compRow[field];
+
+          if (
+            (ectsVal === null || ectsVal === 0) &&
+            (compVal === null || compVal === 0)
+          ) {
+            return;
+          }
+
+          const tr = document.createElement("tr");
+
+          const fieldCell = document.createElement("td");
+          fieldCell.textContent = field.replace(/_/g, " ");
+          fieldCell.style.fontWeight = "600";
+          tr.appendChild(fieldCell);
+
+          const ectsCell = document.createElement("td");
+          if (ectsVal === null || ectsVal === 0) {
+            ectsCell.textContent = "N/A";
+            ectsCell.style.color = "var(--neutral-color)";
+          } else {
+            ectsCell.textContent = `$${parseFloat(ectsVal).toLocaleString()}`;
+          }
+          tr.appendChild(ectsCell);
+
+          const compCell = document.createElement("td");
+          if (compVal === null || compVal === 0) {
+            compCell.textContent = "N/A";
+            compCell.style.color = "var(--neutral-color)";
+          } else {
+            compCell.textContent = `$${parseFloat(compVal).toLocaleString()}`;
+          }
+          tr.appendChild(compCell);
+
+          const diffData = calculateSalaryDifference(ectsVal, compVal);
+
+          const diffCell = document.createElement("td");
+          if (diffData.diff === "N/A") {
+            diffCell.textContent = "N/A";
+            diffCell.classList.add("diff-neutral");
+          } else {
+            diffCell.textContent = diffData.display;
+            if (diffData.raw > 0) {
+              diffCell.classList.add("diff-positive");
+              diffCell.innerHTML = `📈 ${diffCell.textContent}`;
+            } else if (diffData.raw < 0) {
+              diffCell.classList.add("diff-negative");
+              diffCell.innerHTML = `📉 ${diffCell.textContent}`;
+            } else {
+              diffCell.classList.add("diff-zero");
+              diffCell.innerHTML = `⚖️ ${diffCell.textContent}`;
+            }
+          }
+          tr.appendChild(diffCell);
+
+          const percentCell = document.createElement("td");
+          if (diffData.percent === "N/A") {
+            percentCell.textContent = "N/A";
+          } else {
+            const sign = diffData.raw > 0 ? "+" : "";
+            percentCell.textContent = `${sign}${diffData.percent}%`;
+            if (diffData.raw > 0) {
+              percentCell.classList.add("diff-positive");
+            } else if (diffData.raw < 0) {
+              percentCell.classList.add("diff-negative");
+            } else {
+              percentCell.classList.add("diff-zero");
+            }
+          }
+          tr.appendChild(percentCell);
+
+          differenceBody.appendChild(tr);
+        });
+
+        if (differenceBody.children.length === 0) {
+          const tr = document.createElement("tr");
+          tr.classList.add("no-data");
+          const td = document.createElement("td");
+          td.colSpan = 5;
+          td.textContent = "No comparable salary data available";
+          tr.appendChild(td);
+          differenceBody.appendChild(tr);
+        }
+      }
+
+      function populateStepSelects() {
+        const ectsSelect = document.getElementById("ectsStepSelect");
+        const compSelect = document.getElementById("comparisonStepSelect");
+
+        ectsSelect.innerHTML = "";
+        compSelect.innerHTML = "";
+
+        ectsData.forEach((row) => {
+          const option = document.createElement("option");
+          option.value = row.step;
+          option.textContent = `Step ${row.step}`;
+          ectsSelect.appendChild(option);
+        });
+
+        comparisonData.forEach((row) => {
+          const option = document.createElement("option");
+          option.value = row.step;
+          option.textContent = `Step ${row.step}`;
+          compSelect.appendChild(option);
+        });
+
+        if (ectsData.length > 0 && !selectedEctsStep) {
+          selectedEctsStep = ectsData[0].step;
+          ectsSelect.value = selectedEctsStep;
+        }
+        if (comparisonData.length > 0 && !selectedComparisonStep) {
+          selectedComparisonStep = comparisonData[0].step;
+          compSelect.value = selectedComparisonStep;
+        }
+
+        // Remove old listeners and add new ones
+        if (!eventListenersAdded) {
+          ectsSelect.addEventListener("change", (e) => {
+            selectedEctsStep = parseInt(e.target.value);
+            updateComparison();
+          });
+
+          compSelect.addEventListener("change", (e) => {
+            selectedComparisonStep = parseInt(e.target.value);
+            updateComparison();
+          });
+
+          eventListenersAdded = true;
+        }
+
+        updateComparison();
+      }
+
+      async function loadData(type, side) {
+        try {
+          showLoading(`loading${side}`, true);
+          showError(`errorMessage${side}`, "");
+          const data = await GET(`/data?type=${type}`);
+
+          if (side === 1) {
+            ectsData = data;
+          } else {
+            comparisonData = data;
+            currentComparisonType = type;
+          }
+
+          populateTable(data, `headerRow${side}`, `bodyRow${side}`, side);
+          document.getElementById(`table${side}`).style.display = "table";
+          showLoading(`loading${side}`, false);
+
+          if (ectsData.length > 0 && comparisonData.length > 0) {
+            populateStepSelects();
+          }
+        } catch (error) {
+          console.error(`Error loading data for side ${side}:`, error);
+          showError(
+            `errorMessage${side}`,
+            `Failed to load data: ${error.message}`
+          );
+          showLoading(`loading${side}`, false);
+        }
+      }
+
+      async function initializeSelectOptions() {
+        try {
+          const response = await GET("/data");
+          const availableTypes = response.available || [];
+
+          if (!availableTypes.length) {
+            console.warn("No available data types returned from server");
+            return;
+          }
+
+          const select = document.getElementById("type2");
+          select.innerHTML = "";
+
+          availableTypes.forEach((type) => {
+            if (type !== "ECTS") {
+              const option = document.createElement("option");
+              option.value = type;
+              option.textContent = type;
+              select.appendChild(option);
+            }
+          });
+
+          if (select.options.length > 0) {
+            select.value = select.options[0].value;
+          }
+        } catch (error) {
+          console.error("Error initializing select options:", error);
+          showError("errorMessage2", "Failed to load available districts");
+        }
+      }
+
+      async function init() {
+        try {
+          await initializeSelectOptions();
+          await loadData("ECTS", 1);
+          await loadData("Mercer", 2);
+        } catch (error) {
+          console.error("Initialization error:", error);
+          showError("errorMessage1", "Failed to initialize application");
+        }
+      }
+
+      init();
+
+      document.getElementById("type2").addEventListener("change", (e) => {
+        eventListenersAdded = false;
+        selectedComparisonStep = null;
+        loadData(e.target.value, 2);
+      });
+    </script>
+  </body>
+</html>
