@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Data Comparison Tool</title>
+    <title>Salary Comparison Tool</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -13,451 +13,224 @@
         padding: 20px;
         background-color: #f8f9fa;
       }
-      .container-main {
-        max-width: 1400px;
+      .header {
+        margin-bottom: 30px;
       }
-      .table-container {
+      .controls {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      .checklist-section {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      .checklist-section h5 {
+        margin-bottom: 15px;
+        color: #333;
+      }
+      .form-check {
+        margin-bottom: 10px;
+      }
+      table {
         background: white;
         border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        margin-bottom: 20px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       }
-      .table-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-        padding-bottom: 10px;
-        border-bottom: 2px solid #e9ecef;
+      .diff-positive {
+        color: #28a745;
+        font-weight: 600;
       }
-      table tbody tr {
-        cursor: pointer;
-        transition: background-color 0.2s;
-      }
-      table tbody tr:hover {
-        background-color: #f8f9fa;
-      }
-      table tbody tr.selected {
-        background-color: #d3e5f7;
-        font-weight: 500;
-      }
-      .comparison-section {
-        margin-top: 30px;
-      }
-      .loading {
-        display: none;
-        text-align: center;
-        padding: 20px;
-      }
-      .loading.active {
-        display: block;
+      .diff-negative {
+        color: #dc3545;
+        font-weight: 600;
       }
       .error-message {
         display: none;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
       }
       .error-message.active {
         display: block;
       }
-      th {
-        background-color: #f8f9fa;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.85rem;
+      .loading {
+        display: none;
+        text-align: center;
+        padding: 40px;
+        color: #666;
       }
-      td {
-        vertical-align: middle;
-      }
-      .diff-positive {
-        background-color: #d4edda;
-        color: #155724;
-        font-weight: 600;
-      }
-      .diff-negative {
-        background-color: #f8d7da;
-        color: #721c24;
-        font-weight: 600;
-      }
-      .diff-neutral {
-        background-color: #fff3cd;
-        color: #856404;
-      }
-      .diff-zero {
-        background-color: #e2e3e5;
-        color: #383d41;
-      }
-      .selection-info {
-        background-color: #e7f3ff;
-        border-left: 4px solid #2196f3;
-        padding: 10px;
-        margin-bottom: 10px;
-        border-radius: 4px;
-      }
-      .side-by-side {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-      }
-      @media (max-width: 768px) {
-        .side-by-side {
-          grid-template-columns: 1fr;
-        }
-      }
-      .column-selector {
-        margin-bottom: 15px;
-        display: flex;
-        gap: 10px;
-        align-items: center;
+      .loading.active {
+        display: block;
       }
     </style>
   </head>
   <body>
-    <div class="container container-main">
-      <h1 class="mb-4">Data Comparison Tool</h1>
+    <div class="container">
+      <div class="header">
+        <h1>Salary Comparison Tool</h1>
+        <p>Compare ECTS with other districts</p>
+      </div>
 
-      <div class="side-by-side">
-        <!-- Left Side Selection -->
-        <div>
-          <div class="table-container">
-            <div class="table-header">
-              <h3>Select First Item</h3>
-            </div>
-            <div class="column-selector">
-              <label for="type1" class="form-label mb-0">Dataset:</label>
-              <select id="type1" class="form-select">
-                <option value="ECTS">ECTS</option>
-              </select>
-            </div>
+      <pre id="erieData"></pre>
 
-            <div class="loading active" id="loading1">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-              <p class="mt-2">Loading data...</p>
-            </div>
+      <div class="error-message" id="errorMessage"></div>
+      <div class="loading active" id="loading">Loading data...</div>
 
-            <div
-              class="error-message alert alert-danger"
-              id="errorMessage1"
-              role="alert"
-            ></div>
-
-            <table
-              class="table table-hover table-striped"
-              id="table1"
-              style="display: none"
+      <!-- Controls -->
+      <div class="controls" id="controls" style="display: none">
+        <div class="row">
+          <div class="col-md-6">
+            <label for="districtSelect" class="form-label"
+              >Select District to Compare</label
             >
-              <thead>
-                <tr id="headerRow1"></tr>
-              </thead>
-              <tbody id="bodyRow1"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Right Side Selection -->
-        <div>
-          <div class="table-container">
-            <div class="table-header">
-              <h3>Select Second Item</h3>
-            </div>
-            <div class="column-selector">
-              <label for="type2" class="form-label mb-0">Dataset:</label>
-              <select id="type2" class="form-select">
-                <option value="Mercer">Mercer</option>
-              </select>
-            </div>
-
-            <div class="loading active" id="loading2">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-              <p class="mt-2">Loading data...</p>
-            </div>
-
-            <div
-              class="error-message alert alert-danger"
-              id="errorMessage2"
-              role="alert"
-            ></div>
-
-            <table
-              class="table table-hover table-striped"
-              id="table2"
-              style="display: none"
-            >
-              <thead>
-                <tr id="headerRow2"></tr>
-              </thead>
-              <tbody id="bodyRow2"></tbody>
-            </table>
+            <select class="form-select" id="districtSelect">
+              <option value="">-- Choose a district --</option>
+            </select>
           </div>
         </div>
       </div>
 
-      <!-- Comparison Results -->
+      <!-- ECTS Property Selection -->
       <div
-        class="comparison-section"
-        id="comparisonSection"
+        class="checklist-section"
+        id="ectsPropertySection"
         style="display: none"
       >
-        <div class="table-container">
-          <h2 class="mb-4">
-            Salary Comparison - Step <span id="comparisonStep"></span>
-          </h2>
-          <div class="selection-info" id="selectionInfo"></div>
-          <table class="table table-striped" id="differenceTable">
-            <thead>
-              <tr>
-                <th>Position Type</th>
-                <th id="diffHeader1">ECTS</th>
-                <th id="diffHeader2">Comparison</th>
-                <th>Difference</th>
-                <th>% Difference</th>
-              </tr>
-            </thead>
-            <tbody id="differenceBody"></tbody>
-          </table>
-        </div>
+        <h5>Select ECTS Property to Compare</h5>
+        <div id="ectsPropertyRadios"></div>
+      </div>
+
+      <!-- Comparison District Property Checklist -->
+      <div
+        class="checklist-section"
+        id="checklistSection"
+        style="display: none"
+      >
+        <h5>Select Properties from <span id="districtName"></span></h5>
+        <div id="propertyChecklist"></div>
+      </div>
+
+      <!-- Comparison Table -->
+      <div id="tableContainer" style="display: none">
+        <table class="table table-striped">
+          <thead class="table-light">
+            <tr id="tableHeader"></tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
       </div>
     </div>
 
     <script>
-      let ectsData = [];
-      let comparisonData = [];
-      let selectedEctsStep = null;
-      let selectedComparisonStep = null;
-      let currentComparisonType = "Mercer";
+      const APP = {
+        ectsData: [],
+        comparisonData: [],
+        selectedDistrict: null,
+        selectedEctsProperty: null,
+        selectedDistrictProperties: new Set(),
+        availableTypes: [],
 
-      async function GET(URL) {
-        const data = await fetch(URL);
-        if (!data.ok) {
-          throw new Error(`HTTP error! status: ${data.status}`);
-        }
-        return data.json();
-      }
+        async fetchData(type) {
+          try {
+            const response = await fetch(`/data/${type}`);
+            if (!response.ok) throw new Error(`Failed to fetch ${type}`);
+            return await response.json();
+          } catch (error) {
+            this.showError(`Failed to load ${type}: ${error.message}`);
+            throw error;
+          }
+        },
 
-      function showLoading(id, show = true) {
-        document.getElementById(id).classList.toggle("active", show);
-      }
-
-      function showError(id, message) {
-        const errorEl = document.getElementById(id);
-        if (message) {
-          errorEl.textContent = message;
+        showError(message) {
+          const errorEl = document.getElementById("errorMessage");
+          errorEl.textContent = `⚠️ ${message}`;
           errorEl.classList.add("active");
-        } else {
-          errorEl.classList.remove("active");
-        }
-      }
+        },
 
-      function getNumericFields(row) {
-        // Get all numeric fields from a row (excluding 'step')
-        return Object.keys(row).filter(
-          (key) =>
-            key !== "step" &&
-            !isNaN(parseFloat(row[key])) &&
-            row[key] !== null &&
-            row[key] !== 0
-        );
-      }
+        clearError() {
+          document.getElementById("errorMessage").classList.remove("active");
+        },
 
-      function populateTable(data, headerId, bodyId, side) {
-        const headerRow = document.getElementById(headerId);
-        headerRow.innerHTML = "";
-        if (Array.isArray(data) && data.length > 0) {
-          Object.keys(data[0]).forEach((key) => {
-            const th = document.createElement("th");
-            th.textContent = key;
-            headerRow.appendChild(th);
-          });
-        }
+        showLoading(show = true) {
+          document.getElementById("loading").classList.toggle("active", show);
+        },
 
-        const dataBody = document.getElementById(bodyId);
-        dataBody.innerHTML = "";
+        async init() {
+          try {
+            this.showLoading(true);
+            const availableResponse = await fetch("/data/types").then((r) =>
+              r.json()
+            );
+            this.availableTypes = availableResponse.available || [];
 
-        if (Array.isArray(data)) {
-          data.forEach((row, index) => {
-            const tr = document.createElement("tr");
-            tr.style.cursor = "pointer";
-            tr.dataset.rowIndex = index;
-            Object.values(row).forEach((value) => {
-              const td = document.createElement("td");
-              td.textContent = value;
-              tr.appendChild(td);
-            });
+            this.ectsData = await this.fetchData("ECTS");
+            this.setupECTSPropertySelection();
+            this.setupDistrictSelect();
 
-            tr.addEventListener("click", () => {
-              document
-                .querySelectorAll(`#${bodyId} tr`)
-                .forEach((r) => r.classList.remove("selected"));
-              tr.classList.add("selected");
+            document.getElementById("controls").style.display = "block";
+            this.showLoading(false);
+            this.clearError();
+          } catch (error) {
+            console.error("Initialization error:", error);
+            this.showLoading(false);
+          }
+        },
 
-              if (side === 1) {
-                selectedEctsStep = row.step;
-              } else {
-                selectedComparisonStep = row.step;
+        setupECTSPropertySelection() {
+          const radioContainer = document.getElementById("ectsPropertyRadios");
+          radioContainer.innerHTML = "";
+
+          if (this.ectsData.length === 0) return;
+
+          const firstRow = this.ectsData[0];
+          Object.keys(firstRow).forEach((key) => {
+            if (key !== "step") {
+              const label = document.createElement("label");
+              label.className = "form-check-label";
+
+              const radio = document.createElement("input");
+              radio.type = "radio";
+              radio.className = "form-check-input";
+              radio.name = "ectsProperty";
+              radio.value = key;
+
+              if (!this.selectedEctsProperty) {
+                radio.checked = true;
+                this.selectedEctsProperty = key;
               }
-              updateComparison();
-            });
 
-            dataBody.appendChild(tr);
+              radio.addEventListener("change", (e) => {
+                this.selectedEctsProperty = e.target.value;
+                this.updateTable();
+              });
+
+              label.appendChild(radio);
+              label.appendChild(document.createTextNode(` ${key}`));
+
+              const div = document.createElement("div");
+              div.className = "form-check";
+              div.appendChild(label);
+              radioContainer.appendChild(div);
+            }
           });
-        }
-      }
 
-      function calculateSalaryDifference(ectsValue, comparisonValue) {
-        const ects = parseFloat(ectsValue);
-        const comp = parseFloat(comparisonValue);
+          document.getElementById("ectsPropertySection").style.display =
+            "block";
+        },
 
-        if (isNaN(ects) || isNaN(comp)) {
-          return { diff: "N/A", percent: "N/A", raw: 0 };
-        }
-
-        const diff = ects - comp;
-        const percent =
-          comp !== 0 ? ((diff / comp) * 100).toFixed(2) : diff === 0 ? 0 : "∞";
-        return {
-          diff: diff,
-          percent: percent,
-          display: `$${diff.toLocaleString()}`,
-        };
-      }
-
-      function updateComparison() {
-        if (selectedEctsStep === null || selectedComparisonStep === null) {
-          document.getElementById("comparisonSection").style.display = "none";
-          return;
-        }
-
-        // Find matching rows
-        const ectsRow = ectsData.find((r) => r.step === selectedEctsStep);
-        const compRow = comparisonData.find(
-          (r) => r.step === selectedComparisonStep
-        );
-
-        if (!ectsRow || !compRow) {
-          document.getElementById("comparisonSection").style.display = "none";
-          return;
-        }
-
-        document.getElementById("comparisonSection").style.display = "block";
-        document.getElementById("comparisonStep").textContent =
-          selectedEctsStep;
-        document.getElementById("diffHeader2").textContent =
-          currentComparisonType;
-        document.getElementById("selectionInfo").innerHTML = `
-          <strong>Comparing Step ${selectedEctsStep}:</strong> ECTS vs ${currentComparisonType}
-        `;
-
-        const differenceBody = document.getElementById("differenceBody");
-        differenceBody.innerHTML = "";
-
-        // Get all numeric fields from ECTS row
-        const fields = getNumericFields(ectsRow);
-
-        fields.forEach((field) => {
-          const tr = document.createElement("tr");
-
-          const fieldCell = document.createElement("td");
-          fieldCell.textContent = field;
-          fieldCell.style.fontWeight = "600";
-          tr.appendChild(fieldCell);
-
-          const ectsCell = document.createElement("td");
-          const ectsVal = ectsRow[field];
-          ectsCell.textContent = `$${parseFloat(ectsVal).toLocaleString()}`;
-          tr.appendChild(ectsCell);
-
-          const compCell = document.createElement("td");
-          const compVal = compRow[field];
-          if (compVal === null || compVal === undefined || compVal === 0) {
-            compCell.textContent = "N/A";
-            compCell.style.color = "#999";
-          } else {
-            compCell.textContent = `$${parseFloat(compVal).toLocaleString()}`;
-          }
-          tr.appendChild(compCell);
-
-          const diffData = calculateSalaryDifference(ectsVal, compVal);
-
-          const diffCell = document.createElement("td");
-          if (diffData.diff === "N/A") {
-            diffCell.textContent = "N/A";
-            diffCell.classList.add("diff-neutral");
-          } else {
-            diffCell.textContent = diffData.display;
-            if (diffData.raw > 0) {
-              diffCell.classList.add("diff-positive"); // ECTS pays more
-            } else if (diffData.raw < 0) {
-              diffCell.classList.add("diff-negative"); // ECTS pays less
-            } else {
-              diffCell.classList.add("diff-zero");
-            }
-          }
-          tr.appendChild(diffCell);
-
-          const percentCell = document.createElement("td");
-          if (diffData.percent === "N/A") {
-            percentCell.textContent = "N/A";
-          } else {
-            percentCell.textContent = `${diffData.raw > 0 ? "+" : ""}${
-              diffData.percent
-            }%`;
-            if (diffData.raw > 0) {
-              percentCell.classList.add("diff-positive");
-            } else if (diffData.raw < 0) {
-              percentCell.classList.add("diff-negative");
-            } else {
-              percentCell.classList.add("diff-zero");
-            }
-          }
-          tr.appendChild(percentCell);
-
-          differenceBody.appendChild(tr);
-        });
-      }
-
-      async function loadData(type, side) {
-        try {
-          showLoading(`loading${side}`, true);
-          showError(`errorMessage${side}`, "");
-          const data = await GET(`/data?type=${type}`);
-
-          if (side === 1) {
-            ectsData = data;
-          } else {
-            comparisonData = data;
-            currentComparisonType = type;
-          }
-
-          populateTable(data, `headerRow${side}`, `bodyRow${side}`, side);
-          document.getElementById(`table${side}`).style.display = "table";
-          showLoading(`loading${side}`, false);
-        } catch (error) {
-          console.error(`Error loading data for side ${side}:`, error);
-          showError(
-            `errorMessage${side}`,
-            `Failed to load data: ${error.message}`
-          );
-          showLoading(`loading${side}`, false);
-        }
-      }
-
-      async function initializeSelectOptions() {
-        try {
-          const response = await GET("/data");
-          const availableTypes = response.available || [];
-
-          if (!availableTypes.length) {
-            console.warn("No available data types returned from server");
-            return;
-          }
-
-          const select = document.getElementById("type2");
-          select.innerHTML = "";
-
-          availableTypes.forEach((type) => {
+        setupDistrictSelect() {
+          const select = document.getElementById("districtSelect");
+          this.availableTypes.forEach((type) => {
             if (type !== "ECTS") {
               const option = document.createElement("option");
               option.value = type;
@@ -466,27 +239,168 @@
             }
           });
 
-          if (select.options.length > 0) {
-            select.value = select.options[0].value;
+          select.addEventListener("change", async (e) => {
+            this.selectedDistrict = e.target.value;
+            this.selectedDistrictProperties.clear();
+            if (this.selectedDistrict) {
+              this.comparisonData = await this.fetchData(this.selectedDistrict);
+              document.getElementById("districtName").textContent =
+                this.selectedDistrict;
+              this.setupDistrictPropertyChecklist();
+              document.getElementById("checklistSection").style.display =
+                "block";
+              this.initializeDistrictProperties();
+            } else {
+              document.getElementById("checklistSection").style.display =
+                "none";
+              document.getElementById("tableContainer").style.display = "none";
+            }
+          });
+        },
+
+        setupDistrictPropertyChecklist() {
+          const checklist = document.getElementById("propertyChecklist");
+          checklist.innerHTML = "";
+
+          if (this.comparisonData.length === 0) return;
+
+          const firstRow = this.comparisonData[0];
+          Object.keys(firstRow).forEach((key) => {
+            if (key !== "step") {
+              const label = document.createElement("label");
+              label.className = "form-check-label";
+
+              const checkbox = document.createElement("input");
+              checkbox.type = "checkbox";
+              checkbox.className = "form-check-input";
+              checkbox.value = key;
+              checkbox.checked = true;
+              this.selectedDistrictProperties.add(key);
+
+              checkbox.addEventListener("change", (e) => {
+                if (e.target.checked) {
+                  this.selectedDistrictProperties.add(e.target.value);
+                } else {
+                  this.selectedDistrictProperties.delete(e.target.value);
+                }
+                this.updateTable();
+              });
+
+              label.appendChild(checkbox);
+              label.appendChild(document.createTextNode(` ${key}`));
+
+              const div = document.createElement("div");
+              div.className = "form-check";
+              div.appendChild(label);
+              checklist.appendChild(div);
+            }
+          });
+
+          this.updateTable();
+        },
+
+        initializeDistrictProperties() {
+          // All checkboxes are already checked, just update table
+          this.updateTable();
+        },
+
+        updateTable() {
+          if (
+            !this.selectedDistrict ||
+            !this.selectedEctsProperty ||
+            this.ectsData.length === 0
+          ) {
+            document.getElementById("tableContainer").style.display = "none";
+            return;
           }
-        } catch (error) {
-          console.error("Error initializing select options:", error);
-        }
-      }
 
-      async function init() {
-        await initializeSelectOptions();
-        await loadData("ECTS", 1);
-        await loadData("Mercer", 2);
-      }
+          this.buildTable();
+          document.getElementById("tableContainer").style.display = "block";
+        },
 
-      init();
+        buildTable() {
+          // Build header
+          const headerRow = document.getElementById("tableHeader");
+          headerRow.innerHTML = "";
 
-      document.getElementById("type2").addEventListener("change", (e) => {
-        loadData(e.target.value, 2);
-        selectedComparisonStep = null;
-        document.getElementById("comparisonSection").style.display = "none";
-      });
+          const stepTh = document.createElement("th");
+          stepTh.textContent = "Step";
+          headerRow.appendChild(stepTh);
+
+          const ectsTh = document.createElement("th");
+          ectsTh.textContent = `ECTS - ${this.selectedEctsProperty}`;
+          headerRow.appendChild(ectsTh);
+
+          this.selectedDistrictProperties.forEach((prop) => {
+            const th = document.createElement("th");
+            th.textContent = `${this.selectedDistrict} - ${prop}`;
+            headerRow.appendChild(th);
+          });
+
+          // Build body
+          const tableBody = document.getElementById("tableBody");
+          tableBody.innerHTML = "";
+
+          this.ectsData.forEach((ectsRow) => {
+            const tr = document.createElement("tr");
+
+            const stepTd = document.createElement("td");
+            stepTd.textContent = ectsRow.step;
+            stepTd.style.fontWeight = "600";
+            tr.appendChild(stepTd);
+
+            // ECTS property value
+            const ectsValue = ectsRow[this.selectedEctsProperty];
+            const ectsTd = document.createElement("td");
+            ectsTd.textContent =
+              ectsValue !== null && ectsValue !== undefined
+                ? `$${parseFloat(ectsValue).toLocaleString()}`
+                : "N/A";
+            tr.appendChild(ectsTd);
+
+            // Comparison district values with difference
+            const compRow = this.comparisonData.find(
+              (row) => row.step === ectsRow.step
+            );
+
+            this.selectedDistrictProperties.forEach((prop) => {
+              const td = document.createElement("td");
+
+              if (!compRow) {
+                td.textContent = "N/A";
+              } else {
+                const ectsBase = parseFloat(ectsRow[this.selectedEctsProperty]);
+                const compValue = parseFloat(compRow[prop]);
+
+                if (
+                  compValue === null ||
+                  compValue === undefined ||
+                  isNaN(compValue)
+                ) {
+                  td.textContent = "N/A";
+                } else {
+                  const diff = compValue - (ectsBase || 0);
+                  const diffDisplay = `$${Math.abs(diff).toLocaleString()}`;
+
+                  if (diff === 0) {
+                    td.textContent = `$${compValue.toLocaleString()}`;
+                  } else if (diff > 0) {
+                    td.innerHTML = `$${compValue.toLocaleString()} <span class="diff-negative">(+${diffDisplay})</span>`;
+                  } else {
+                    td.innerHTML = `$${compValue.toLocaleString()} <span class="diff-positive">(-${diffDisplay})</span>`;
+                  }
+                }
+              }
+
+              tr.appendChild(td);
+            });
+
+            tableBody.appendChild(tr);
+          });
+        },
+      };
+
+      APP.init();
     </script>
   </body>
 </html>

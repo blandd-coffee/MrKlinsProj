@@ -88,7 +88,19 @@
 
       <!-- Controls -->
       <div class="controls" id="controls" style="display: none">
-        <div class="row">
+        <!-- Mode -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Mode</label>
+            <select class="form-select" id="modeSelect">
+              <option value="single" selected>Single District (current)</option>
+              <option value="average">Average of Included Districts</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Single-mode district select (RESTORED) -->
+        <div class="row" id="singleDistrictSection">
           <div class="col-md-6">
             <label for="districtSelect" class="form-label"
               >Select District to Compare</label
@@ -98,9 +110,35 @@
             </select>
           </div>
         </div>
+
+        <!-- Average-mode district checklist -->
+        <div class="row mt-3" id="avgDistrictSection" style="display: none">
+          <div class="col-12">
+            <div class="checklist-section">
+              <h5>Select Districts to Include in Average</h5>
+              <div id="avgDistrictChecklist"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mapping/config UI (shown only when needed) -->
+        <div class="row mt-3" id="mappingSection" style="display: none">
+          <div class="col-12">
+            <div class="checklist-section">
+              <h5>One-time Mapping (saved automatically)</h5>
+              <p class="text-muted mb-2" style="margin-top: -6px">
+                Map each district’s columns to the 4 ECTS properties.
+              </p>
+              <div id="mappingContainer"></div>
+              <button class="btn btn-primary mt-3" id="saveMappingsBtn">
+                Save Mappings
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- ECTS Property Selection -->
+      <!-- ECTS Property Selection (single mode only) -->
       <div
         class="checklist-section"
         id="ectsPropertySection"
@@ -110,7 +148,7 @@
         <div id="ectsPropertyRadios"></div>
       </div>
 
-      <!-- Comparison District Property Checklist -->
+      <!-- Comparison District Property Checklist (single mode only) -->
       <div
         class="checklist-section"
         id="checklistSection"
@@ -140,6 +178,13 @@
         selectedDistrictProperties: new Set(),
         availableTypes: [],
 
+        // Modes
+        mode: "single", // "single" | "average"
+        avgSelectedDistricts: new Set(),
+        // IMPORTANT: these must match your ECTS JSON keys
+        requiredEctsProps: ["voc_i", "voc_ii", "masters", "m_plus_15"],
+        mappings: {}, // loaded from localStorage
+
         async fetchData(type) {
           try {
             const response = await fetch(`/data/${type}`);
@@ -165,17 +210,47 @@
           document.getElementById("loading").classList.toggle("active", show);
         },
 
+        // ---- Mapping persistence
+        loadMappings() {
+          try {
+            this.mappings = JSON.parse(
+              localStorage.getItem("salaryToolMappings") || "{}"
+            );
+          } catch {
+            this.mappings = {};
+          }
+        },
+
+        saveMappings() {
+          localStorage.setItem(
+            "salaryToolMappings",
+            JSON.stringify(this.mappings)
+          );
+        },
+
+        getDistrictKey(type) {
+          return String(type || "")
+            .trim()
+            .toLowerCase();
+        },
+
         async init() {
           try {
             this.showLoading(true);
+
+            this.loadMappings();
+
             const availableResponse = await fetch("/data/types").then((r) =>
               r.json()
             );
             this.availableTypes = availableResponse.available || [];
 
             this.ectsData = await this.fetchData("ECTS");
-            this.setupECTSPropertySelection();
-            this.setupDistrictSelect();
+
+            this.setupModeSelect();
+            this.setupECTSPropertySelection(); // single mode
+            this.setupDistrictSelect(); // single mode
+            this.setupAvgDistrictChecklist(); // average mode
 
             document.getElementById("controls").style.display = "block";
             this.showLoading(false);
@@ -186,6 +261,92 @@
           }
         },
 
+        // ---- Mode switch
+        setupModeSelect() {
+          const modeSelect = document.getElementById("modeSelect");
+
+          modeSelect.addEventListener("change", (e) => {
+            this.mode = e.target.value;
+
+            const avgSection = document.getElementById("avgDistrictSection");
+            const mappingSection = document.getElementById("mappingSection");
+            const singleDistrictSection = document.getElementById(
+              "singleDistrictSection"
+            );
+
+            if (this.mode === "average") {
+              // Show average UI
+              avgSection.style.display = "block";
+              singleDistrictSection.style.display = "none";
+
+              // Hide single-mode sections
+              document.getElementById("ectsPropertySection").style.display =
+                "none";
+              document.getElementById("checklistSection").style.display =
+                "none";
+
+              // Reset single-mode selection
+              document.getElementById("districtSelect").value = "";
+              this.selectedDistrict = null;
+              this.selectedDistrictProperties.clear();
+              this.comparisonData = [];
+
+              // Hide mapping until needed
+              mappingSection.style.display = "none";
+
+              // Try to build table
+              this.updateTable();
+            } else {
+              // Back to single mode
+              avgSection.style.display = "none";
+              mappingSection.style.display = "none";
+              singleDistrictSection.style.display = "block";
+
+              // Restore single-mode UI
+              document.getElementById("ectsPropertySection").style.display =
+                "block";
+              document.getElementById("checklistSection").style.display =
+                "none";
+              document.getElementById("tableContainer").style.display = "none";
+            }
+          });
+
+          // Save mappings button
+          document
+            .getElementById("saveMappingsBtn")
+            .addEventListener("click", () => {
+              const selects = document.querySelectorAll(
+                "[data-map-district][data-map-ects]"
+              );
+
+              // Validate: nothing left blank
+              for (const sel of selects) {
+                if (!sel.value) {
+                  this.showError(
+                    "Please choose a matching district column for every required ECTS property before saving."
+                  );
+                  return;
+                }
+              }
+
+              selects.forEach((sel) => {
+                const district = sel.getAttribute("data-map-district");
+                const ectsProp = sel.getAttribute("data-map-ects");
+                const districtProp = sel.value;
+
+                const key = this.getDistrictKey(district);
+                if (!this.mappings[key]) this.mappings[key] = {};
+                this.mappings[key][ectsProp] = districtProp;
+              });
+
+              this.saveMappings();
+              this.clearError();
+              document.getElementById("mappingSection").style.display = "none";
+              this.updateTable();
+            });
+        },
+
+        // ---- Single mode: ECTS property radios
         setupECTSPropertySelection() {
           const radioContainer = document.getElementById("ectsPropertyRadios");
           radioContainer.innerHTML = "";
@@ -193,43 +354,48 @@
           if (this.ectsData.length === 0) return;
 
           const firstRow = this.ectsData[0];
-          Object.keys(firstRow).forEach((key) => {
-            if (key !== "step") {
-              const label = document.createElement("label");
-              label.className = "form-check-label";
+          const keys = Object.keys(firstRow).filter((k) => k !== "step");
 
-              const radio = document.createElement("input");
-              radio.type = "radio";
-              radio.className = "form-check-input";
-              radio.name = "ectsProperty";
-              radio.value = key;
+          // pick a default if none
+          if (!this.selectedEctsProperty && keys.length) {
+            this.selectedEctsProperty = keys[0];
+          }
 
-              if (!this.selectedEctsProperty) {
-                radio.checked = true;
-                this.selectedEctsProperty = key;
-              }
+          keys.forEach((key) => {
+            const label = document.createElement("label");
+            label.className = "form-check-label";
 
-              radio.addEventListener("change", (e) => {
-                this.selectedEctsProperty = e.target.value;
-                this.updateTable();
-              });
+            const radio = document.createElement("input");
+            radio.type = "radio";
+            radio.className = "form-check-input";
+            radio.name = "ectsProperty";
+            radio.value = key;
+            radio.checked = key === this.selectedEctsProperty;
 
-              label.appendChild(radio);
-              label.appendChild(document.createTextNode(` ${key}`));
+            radio.addEventListener("change", (e) => {
+              this.selectedEctsProperty = e.target.value;
+              this.updateTable();
+            });
 
-              const div = document.createElement("div");
-              div.className = "form-check";
-              div.appendChild(label);
-              radioContainer.appendChild(div);
-            }
+            label.appendChild(radio);
+            label.appendChild(document.createTextNode(` ${key}`));
+
+            const div = document.createElement("div");
+            div.className = "form-check";
+            div.appendChild(label);
+            radioContainer.appendChild(div);
           });
 
           document.getElementById("ectsPropertySection").style.display =
             "block";
         },
 
+        // ---- Single mode: district select
         setupDistrictSelect() {
           const select = document.getElementById("districtSelect");
+
+          // Populate options
+          select.innerHTML = `<option value="">-- Choose a district --</option>`;
           this.availableTypes.forEach((type) => {
             if (type !== "ECTS") {
               const option = document.createElement("option");
@@ -240,8 +406,11 @@
           });
 
           select.addEventListener("change", async (e) => {
+            if (this.mode !== "single") return;
+
             this.selectedDistrict = e.target.value;
             this.selectedDistrictProperties.clear();
+
             if (this.selectedDistrict) {
               this.comparisonData = await this.fetchData(this.selectedDistrict);
               document.getElementById("districtName").textContent =
@@ -249,7 +418,7 @@
               this.setupDistrictPropertyChecklist();
               document.getElementById("checklistSection").style.display =
                 "block";
-              this.initializeDistrictProperties();
+              this.updateTable();
             } else {
               document.getElementById("checklistSection").style.display =
                 "none";
@@ -278,11 +447,9 @@
               this.selectedDistrictProperties.add(key);
 
               checkbox.addEventListener("change", (e) => {
-                if (e.target.checked) {
+                if (e.target.checked)
                   this.selectedDistrictProperties.add(e.target.value);
-                } else {
-                  this.selectedDistrictProperties.delete(e.target.value);
-                }
+                else this.selectedDistrictProperties.delete(e.target.value);
                 this.updateTable();
               });
 
@@ -299,27 +466,73 @@
           this.updateTable();
         },
 
-        initializeDistrictProperties() {
-          // All checkboxes are already checked, just update table
-          this.updateTable();
+        // ---- Average mode: district checklist
+        setupAvgDistrictChecklist() {
+          const container = document.getElementById("avgDistrictChecklist");
+          container.innerHTML = "";
+
+          this.availableTypes.forEach((type) => {
+            if (type === "ECTS") return;
+
+            const label = document.createElement("label");
+            label.className = "form-check-label";
+
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.className = "form-check-input";
+            checkbox.value = type;
+
+            checkbox.addEventListener("change", (e) => {
+              if (e.target.checked)
+                this.avgSelectedDistricts.add(e.target.value);
+              else this.avgSelectedDistricts.delete(e.target.value);
+              this.updateTable();
+            });
+
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(` ${type}`));
+
+            const div = document.createElement("div");
+            div.className = "form-check";
+            div.appendChild(label);
+            container.appendChild(div);
+          });
         },
 
+        // ---- Update table dispatcher
         updateTable() {
+          // Clear any stale errors for a smoother experience
+          this.clearError();
+
+          if (this.mode === "single") {
+            if (
+              !this.selectedDistrict ||
+              !this.selectedEctsProperty ||
+              this.ectsData.length === 0
+            ) {
+              document.getElementById("tableContainer").style.display = "none";
+              return;
+            }
+            this.buildTableSingle();
+            document.getElementById("tableContainer").style.display = "block";
+            return;
+          }
+
+          // Average mode
           if (
-            !this.selectedDistrict ||
-            !this.selectedEctsProperty ||
-            this.ectsData.length === 0
+            this.ectsData.length === 0 ||
+            this.avgSelectedDistricts.size === 0
           ) {
             document.getElementById("tableContainer").style.display = "none";
             return;
           }
 
-          this.buildTable();
-          document.getElementById("tableContainer").style.display = "block";
+          // buildTableAverage is async; it will hide table if mapping needed
+          this.buildTableAverage();
         },
 
-        buildTable() {
-          // Build header
+        // ---- Single mode table
+        buildTableSingle() {
           const headerRow = document.getElementById("tableHeader");
           headerRow.innerHTML = "";
 
@@ -337,7 +550,6 @@
             headerRow.appendChild(th);
           });
 
-          // Build body
           const tableBody = document.getElementById("tableBody");
           tableBody.innerHTML = "";
 
@@ -349,7 +561,6 @@
             stepTd.style.fontWeight = "600";
             tr.appendChild(stepTd);
 
-            // ECTS property value
             const ectsValue = ectsRow[this.selectedEctsProperty];
             const ectsTd = document.createElement("td");
             ectsTd.textContent =
@@ -358,7 +569,6 @@
                 : "N/A";
             tr.appendChild(ectsTd);
 
-            // Comparison district values with difference
             const compRow = this.comparisonData.find(
               (row) => row.step === ectsRow.step
             );
@@ -375,13 +585,14 @@
                 if (
                   compValue === null ||
                   compValue === undefined ||
-                  isNaN(compValue)
+                  Number.isNaN(compValue)
                 ) {
                   td.textContent = "N/A";
                 } else {
                   const diff = compValue - (ectsBase || 0);
                   const diffDisplay = `$${Math.abs(diff).toLocaleString()}`;
 
+                  // Keeping your existing classes exactly as you had them
                   if (diff === 0) {
                     td.textContent = `$${compValue.toLocaleString()}`;
                   } else if (diff > 0) {
@@ -397,6 +608,205 @@
 
             tableBody.appendChild(tr);
           });
+        },
+
+        // ---- Average mode: ensure mappings exist (show config only when needed)
+        async ensureMappingsForSelectedDistricts(districtDataMap) {
+          const missing = [];
+
+          for (const type of Object.keys(districtDataMap)) {
+            const key = this.getDistrictKey(type);
+            const map = this.mappings[key] || {};
+            const row0 = districtDataMap[type]?.[0] || {};
+            const districtProps = Object.keys(row0).filter((k) => k !== "step");
+
+            const needs = this.requiredEctsProps.filter(
+              (ectsProp) =>
+                !map[ectsProp] || !districtProps.includes(map[ectsProp])
+            );
+
+            if (needs.length) missing.push({ type, needs, districtProps });
+          }
+
+          if (missing.length === 0) {
+            document.getElementById("mappingSection").style.display = "none";
+            return true;
+          }
+
+          // Build mapping UI
+          const container = document.getElementById("mappingContainer");
+          container.innerHTML = "";
+
+          missing.forEach(({ type, needs, districtProps }) => {
+            const block = document.createElement("div");
+            block.className = "mb-4";
+            block.innerHTML = `<div style="font-weight:600; margin-bottom:8px;">${type}</div>`;
+
+            needs.forEach((ectsProp) => {
+              const row = document.createElement("div");
+              row.className = "row align-items-center mb-2";
+
+              const left = document.createElement("div");
+              left.className = "col-md-3";
+              left.textContent = ectsProp;
+
+              const right = document.createElement("div");
+              right.className = "col-md-9";
+
+              const sel = document.createElement("select");
+              sel.className = "form-select";
+              sel.setAttribute("data-map-district", type);
+              sel.setAttribute("data-map-ects", ectsProp);
+
+              const placeholder = document.createElement("option");
+              placeholder.value = "";
+              placeholder.textContent = "-- choose matching district column --";
+              sel.appendChild(placeholder);
+
+              districtProps.forEach((p) => {
+                const opt = document.createElement("option");
+                opt.value = p;
+                opt.textContent = p;
+                sel.appendChild(opt);
+              });
+
+              // If we have a mapping but it's invalid, don't preselect.
+              // If we have an existing valid mapping, preselect it.
+              const key = this.getDistrictKey(type);
+              const existing = (this.mappings[key] || {})[ectsProp];
+              if (existing && districtProps.includes(existing)) {
+                sel.value = existing;
+              }
+
+              right.appendChild(sel);
+              row.appendChild(left);
+              row.appendChild(right);
+              block.appendChild(row);
+            });
+
+            container.appendChild(block);
+          });
+
+          document.getElementById("mappingSection").style.display = "block";
+          document.getElementById("tableContainer").style.display = "none";
+          return false;
+        },
+
+        // ---- Average mode table
+        async buildTableAverage() {
+          try {
+            const districtTypes = Array.from(this.avgSelectedDistricts);
+
+            const districtDataMap = {};
+            await Promise.all(
+              districtTypes.map(async (type) => {
+                districtDataMap[type] = await this.fetchData(type);
+              })
+            );
+
+            const ok = await this.ensureMappingsForSelectedDistricts(
+              districtDataMap
+            );
+            if (!ok) return;
+
+            // Header: Step + (ECTS + AVG) for each required property
+            const headerRow = document.getElementById("tableHeader");
+            headerRow.innerHTML = "";
+
+            const stepTh = document.createElement("th");
+            stepTh.textContent = "Step";
+            headerRow.appendChild(stepTh);
+
+            this.requiredEctsProps.forEach((p) => {
+              const th1 = document.createElement("th");
+              th1.textContent = `ECTS - ${p}`;
+              headerRow.appendChild(th1);
+
+              const th2 = document.createElement("th");
+              th2.textContent = `AVG - ${p}`;
+              headerRow.appendChild(th2);
+            });
+
+            const tableBody = document.getElementById("tableBody");
+            tableBody.innerHTML = "";
+
+            const getMappedValue = (districtType, step, ectsProp) => {
+              const key = this.getDistrictKey(districtType);
+              const mapping = this.mappings[key];
+              if (!mapping) return null;
+
+              const districtProp = mapping[ectsProp];
+              if (!districtProp) return null;
+
+              const row = (districtDataMap[districtType] || []).find(
+                (r) => r.step === step
+              );
+              if (!row) return null;
+
+              const v = parseFloat(row[districtProp]);
+              return Number.isFinite(v) ? v : null;
+            };
+
+            this.ectsData.forEach((ectsRow) => {
+              const tr = document.createElement("tr");
+
+              const stepTd = document.createElement("td");
+              stepTd.textContent = ectsRow.step;
+              stepTd.style.fontWeight = "600";
+              tr.appendChild(stepTd);
+
+              this.requiredEctsProps.forEach((ectsProp) => {
+                const ectsBase = parseFloat(ectsRow[ectsProp]);
+
+                // ECTS cell
+                const ectsTd = document.createElement("td");
+                ectsTd.textContent = Number.isFinite(ectsBase)
+                  ? `$${ectsBase.toLocaleString()}`
+                  : "N/A";
+                tr.appendChild(ectsTd);
+
+                // AVG cell
+                const vals = districtTypes
+                  .map((dt) => getMappedValue(dt, ectsRow.step, ectsProp))
+                  .filter((v) => v !== null);
+
+                const avgTd = document.createElement("td");
+
+                if (vals.length === 0) {
+                  avgTd.textContent = "N/A";
+                } else {
+                  const avg = Math.round(
+                    vals.reduce((a, b) => a + b, 0) / vals.length
+                  );
+
+                  if (!Number.isFinite(ectsBase)) {
+                    avgTd.textContent = `$${avg.toLocaleString()}`;
+                  } else {
+                    const diff = avg - ectsBase;
+                    const diffDisplay = `$${Math.abs(diff).toLocaleString()}`;
+
+                    if (diff === 0) {
+                      avgTd.textContent = `$${avg.toLocaleString()}`;
+                    } else if (diff > 0) {
+                      avgTd.innerHTML = `$${avg.toLocaleString()} <span class="diff-negative">(+${diffDisplay})</span>`;
+                    } else {
+                      avgTd.innerHTML = `$${avg.toLocaleString()} <span class="diff-positive">(-${diffDisplay})</span>`;
+                    }
+                  }
+                }
+
+                tr.appendChild(avgTd);
+              });
+
+              tableBody.appendChild(tr);
+            });
+
+            document.getElementById("tableContainer").style.display = "block";
+          } catch (err) {
+            console.error(err);
+            this.showError(`Average mode failed: ${err.message}`);
+            document.getElementById("tableContainer").style.display = "none";
+          }
         },
       };
 
