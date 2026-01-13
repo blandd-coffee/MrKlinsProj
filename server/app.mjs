@@ -37,7 +37,14 @@ app.use(cors());
 app.use(express.json());
 
 // Define available data types
-const AVAILABLE_TYPES = ["ECTS", "Mercer", "Corry", "Crawford"];
+const AVAILABLE_TYPES = [
+  "ECTS",
+  "Erie",
+  "Mercer",
+  "Corry",
+  "Crawford",
+  "NorthEast",
+];
 const DATA_DIR = join(__dirname, "../public");
 
 // 1️⃣ Get available data types

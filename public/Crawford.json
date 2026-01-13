@@ -1,191 +1,191 @@
 [
   {
+    "from_top": 13,
     "step": 1,
+    "nurse_tech": 36867,
     "bachelors": 54237,
+    "b_plus_15": 57447,
     "masters": 61097,
-    "m_plus_15": null,
-    "m_plus_30": 57447,
-    "voc_i": null,
-    "voc_ii": null
+    "m_plus_15": 64538
   },
   {
+    "from_top": 12,
     "step": 2,
+    "nurse_tech": 37703,
     "bachelors": 54537,
+    "b_plus_15": 57747,
     "masters": 61397,
-    "m_plus_15": 47749,
-    "m_plus_30": 57747,
-    "voc_i": 45208,
-    "voc_ii": 45731
+    "m_plus_15": 64838
   },
   {
+    "from_top": 11,
     "step": 3,
+    "nurse_tech": 38538,
     "bachelors": 54837,
+    "b_plus_15": 58047,
     "masters": 61697,
-    "m_plus_15": 48349,
-    "m_plus_30": 58047,
-    "voc_i": 45808,
-    "voc_ii": 46331
+    "m_plus_15": 65138
   },
   {
+    "from_top": 10,
     "step": 4,
+    "nurse_tech": 39374,
     "bachelors": 55137,
+    "b_plus_15": 58347,
     "masters": 61997,
-    "m_plus_15": 48949,
-    "m_plus_30": 58347,
-    "voc_i": 46408,
-    "voc_ii": 46931
+    "m_plus_15": 65438
   },
   {
+    "from_top": 9,
     "step": 5,
+    "nurse_tech": 40209,
     "bachelors": 55437,
+    "b_plus_15": 58647,
     "masters": 62297,
-    "m_plus_15": 49949,
-    "m_plus_30": 58647,
-    "voc_i": 47408,
-    "voc_ii": 47931
+    "m_plus_15": 66738
   },
   {
+    "from_top": 8,
     "step": 6,
+    "nurse_tech": 41046,
     "bachelors": 55737,
+    "b_plus_15": 58947,
     "masters": 62597,
-    "m_plus_15": 50949,
-    "m_plus_30": 58947,
-    "voc_i": 48408,
-    "voc_ii": 48931
+    "m_plus_15": 66838
   },
   {
+    "from_top": 7,
     "step": 7,
+    "nurse_tech": 41881,
     "bachelors": 58240,
+    "b_plus_15": 59897,
     "masters": 63547,
-    "m_plus_15": 51999,
-    "m_plus_30": 59897,
-    "voc_i": 49458,
-    "voc_ii": 49981
+    "m_plus_15": 66988
   },
   {
+    "from_top": 6,
     "step": 8,
+    "nurse_tech": 42716,
     "bachelors": 56744,
+    "b_plus_15": 60832,
     "masters": 64482,
-    "m_plus_15": 52899,
-    "m_plus_30": 60832,
-    "voc_i": 50358,
-    "voc_ii": 50881
+    "m_plus_15": 67923
   },
   {
+    "from_top": 5,
     "step": 9,
+    "nurse_tech": 43552,
     "bachelors": 57247,
+    "b_plus_15": 61768,
     "masters": 65418,
-    "m_plus_15": 53699,
-    "m_plus_30": 61768,
-    "voc_i": 51158,
-    "voc_ii": 51681
+    "m_plus_15": 68869
   },
   {
+    "from_top": 4,
     "step": 10,
+    "nurse_tech": 44387,
     "bachelors": 60177,
+    "b_plus_15": 62698,
     "masters": 66348,
-    "m_plus_15": 54549,
-    "m_plus_30": 62698,
-    "voc_i": 52008,
-    "voc_ii": 52531
+    "m_plus_15": 69789
   },
   {
+    "from_top": 3,
     "step": 11,
+    "nurse_tech": 46223,
     "bachelors": 60418,
+    "b_plus_15": 64939,
     "masters": 68689,
-    "m_plus_15": 55299,
-    "m_plus_30": 64939,
-    "voc_i": 52758,
-    "voc_ii": 53281
+    "m_plus_15": 72030
   },
   {
+    "from_top": 2,
     "step": 12,
+    "nurse_tech": 46059,
     "bachelors": 62659,
+    "b_plus_15": 67180,
     "masters": 70830,
-    "m_plus_15": 55949,
-    "m_plus_30": 67180,
-    "voc_i": 53408,
-    "voc_ii": 53931
+    "m_plus_15": 74271
   },
   {
+    "from_top": 1,
     "step": 13,
+    "nurse_tech": 46894,
     "bachelors": 64900,
+    "b_plus_15": 69421,
     "masters": 73071,
-    "m_plus_15": 56699,
-    "m_plus_30": 69421,
-    "voc_i": 54158,
-    "voc_ii": 54681
+    "m_plus_15": 76512
   },
   {
+    "from_top": 0,
     "step": 14,
+    "nurse_tech": 47730,
     "bachelors": 67141,
+    "b_plus_15": 73609,
     "masters": 76312,
-    "m_plus_15": 57699,
-    "m_plus_30": 73609,
-    "voc_i": 55158,
-    "voc_ii": 55681
+    "m_plus_15": 78753
   },
   {
+    "from_top": 0,
     "step": 15,
+    "nurse_tech": 47730,
     "bachelors": 67141,
+    "b_plus_15": 73609,
     "masters": 76312,
-    "m_plus_15": 58999,
-    "m_plus_30": 73609,
-    "voc_i": 56458,
-    "voc_ii": 56981
+    "m_plus_15": 78753
   },
   {
+    "from_top": 0,
     "step": 16,
+    "nurse_tech": 47730,
     "bachelors": 67141,
+    "b_plus_15": 73609,
     "masters": 76312,
-    "m_plus_15": 60299,
-    "m_plus_30": 73609,
-    "voc_i": 57758,
-    "voc_ii": 58281
+    "m_plus_15": 78753
   },
   {
+    "from_top": 0,
     "step": 17,
+    "nurse_tech": 47730,
     "bachelors": 67141,
+    "b_plus_15": 73609,
     "masters": 76312,
-    "m_plus_15": 61849,
-    "m_plus_30": 73609,
-    "voc_i": 59308,
-    "voc_ii": 59831
+    "m_plus_15": 78753
   },
   {
+    "from_top": 0,
     "step": 18,
+    "nurse_tech": 47730,
     "bachelors": 67141,
+    "b_plus_15": 73609,
     "masters": 76312,
-    "m_plus_15": 64449,
-    "m_plus_30": 73609,
-    "voc_i": 61908,
-    "voc_ii": 62431
+    "m_plus_15": 78753
   },
   {
+    "from_top": 0,
     "step": 19,
+    "nurse_tech": 47730,
     "bachelors": 67141,
+    "b_plus_15": 73609,
     "masters": 76312,
-    "m_plus_15": 68499,
-    "m_plus_30": 73609,
-    "voc_i": 65958,
-    "voc_ii": 66481
+    "m_plus_15": 78753
   },
   {
+    "from_top": 0,
     "step": 20,
+    "nurse_tech": 47730,
     "bachelors": 67141,
+    "b_plus_15": 73609,
     "masters": 76312,
-    "m_plus_15": 72074,
-    "m_plus_30": 73609,
-    "voc_i": 69533,
-    "voc_ii": 70056
+    "m_plus_15": 78753
   },
   {
+    "from_top": 0,
     "step": 21,
+    "nurse_tech": 47730,
     "bachelors": 67141,
+    "b_plus_15": 73609,
     "masters": 76312,
-    "m_plus_15": 75715,
-    "m_plus_30": 73609,
-    "voc_i": 73574,
-    "voc_ii": 74846
+    "m_plus_15": 78753
   }
 ]
