@@ -40,12 +40,14 @@ app.use(express.json());
 const AVAILABLE_TYPES = ["ECTS", "Mercer", "Corry", "Crawford"];
 const DATA_DIR = join(__dirname, "../public");
 
-app.get("/data", async (req, res) => {
-  if (!req.query.type || req.query.type.trim() === "") {
-    return res.json({ available: AVAILABLE_TYPES });
-  }
+// 1️⃣ Get available data types
+app.get("/data/types", (req, res) => {
+  res.json({ available: AVAILABLE_TYPES });
+});
 
-  const type = req.query.type.trim();
+// 2️⃣ Get a specific dataset
+app.get("/data/:type", async (req, res) => {
+  const type = req.params.type;
 
   if (!AVAILABLE_TYPES.includes(type)) {
     return res.status(400).json({
@@ -55,14 +57,13 @@ app.get("/data", async (req, res) => {
     });
   }
 
-  const filename = `${type}.json`;
-  const filepath = join(DATA_DIR, filename);
+  const filepath = join(DATA_DIR, `${type}.json`);
 
   try {
     const data = await readJsonFile(filepath);
     res.json(data);
   } catch (error) {
-    console.error(`Error reading file ${filepath}:`, error.message);
+    console.error(`Error reading ${filepath}:`, error.message);
     const statusCode = error.message.includes("not found") ? 404 : 500;
     res.status(statusCode).json({ error: error.message });
   }

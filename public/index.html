@@ -81,6 +81,8 @@
         <p>Compare ECTS with other districts</p>
       </div>
 
+      <pre id="erieData"></pre>
+
       <div class="error-message" id="errorMessage"></div>
       <div class="loading active" id="loading">Loading data...</div>
 
@@ -140,7 +142,7 @@
 
         async fetchData(type) {
           try {
-            const response = await fetch(`/data?type=${type}`);
+            const response = await fetch(`/data/${type}`);
             if (!response.ok) throw new Error(`Failed to fetch ${type}`);
             return await response.json();
           } catch (error) {
@@ -166,7 +168,9 @@
         async init() {
           try {
             this.showLoading(true);
-            const availableResponse = await this.fetchData("");
+            const availableResponse = await fetch("/data/types").then((r) =>
+              r.json()
+            );
             this.availableTypes = availableResponse.available || [];
 
             this.ectsData = await this.fetchData("ECTS");
